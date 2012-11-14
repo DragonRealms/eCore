@@ -1,4 +1,4 @@
-package com.mcdr;
+package com.mcdr.ecore;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.mcdr.listener.CreativeSignListener;
+import com.mcdr.ecore.listener.CreativeSignListener;
 
 public class eCore extends JavaPlugin {
 

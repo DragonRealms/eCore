@@ -1,4 +1,4 @@
-package com.mcdr.listener;
+package com.mcdr.ecore.listener;
 
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -7,7 +7,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.material.Button;
 
-import com.mcdr.eCore;
+import com.mcdr.ecore.eCore;
 
 public class CreativeSignListener implements Listener {
 

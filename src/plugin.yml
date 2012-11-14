@@ -1,6 +1,6 @@
 name: eCore
 version: 0.01
-main: com.mcdr.eCore
+main: com.mcdr.ecore.eCore
 commands:
     kraeghnor:
         usage: /<command>
