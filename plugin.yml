@@ -3,5 +3,6 @@ version: 0.01
 main: com.mcdr.ecore.eCore
 commands:
     kraeghnor:
+        aliases: [kr]
         usage: /<command>
         description:
