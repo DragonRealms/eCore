@@ -1,8 +1,7 @@
 name: eCore
-version: 0.01
+version: 0.2
 main: com.mcdr.ecore.eCore
 commands:
-    kraeghnor:
-        aliases: [kr]
+    kr:
         usage: /<command>
         description:

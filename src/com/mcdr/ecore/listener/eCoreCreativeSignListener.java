@@ -9,9 +9,9 @@ import org.bukkit.material.Button;
 
 import com.mcdr.ecore.eCore;
 
-public class CreativeSignListener implements Listener {
+public class eCoreCreativeSignListener implements Listener {
 
-	public CreativeSignListener(eCore plugin) {
+	public eCoreCreativeSignListener(eCore plugin) {
 		
 	}
 	
