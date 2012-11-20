@@ -5,7 +5,8 @@ import com.mcdr.ecore.eCore;
 public abstract class TaskManager {
 	public static Integer drawFlameTaskId = null;
 	public static void start() {
-		startFlameEffect();
+		if(eCore.server.getPlayer(eCore.name)!=null)
+			startFlameEffect();
 	}
 	
 	
