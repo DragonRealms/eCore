@@ -1,7 +1,5 @@
 package com.mcdr.ecore.listener;
 
-import java.util.Random;
-
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -40,7 +38,6 @@ public class eCorePlayerListener implements Listener {
 		if (player.getName().equalsIgnoreCase(eCore.name)){
 			World world = player.getWorld();
 			Location loc = player.getLocation();
-			Random rand = new Random();
 			for(int i = 0;i<100;i++)
 				for(double j = 0.0; j <= 2.0; j+=0.25)
 					world.playEffect(loc.clone().add(0.0, j, 0.0),Effect.SMOKE, i, 16);

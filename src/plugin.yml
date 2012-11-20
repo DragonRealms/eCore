@@ -1,5 +1,5 @@
 name: eCore
-version: 0.2
+version: 0.4
 main: com.mcdr.ecore.eCore
 commands:
     kr:
