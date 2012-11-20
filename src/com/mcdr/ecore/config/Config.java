@@ -9,14 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.mcdr.ecore.eCore;
 
-public class Config {
-	
-	public static YamlConfiguration config;
-	
-	public Config(){
-		File f = LoadFile("plugins/eCore/config.yml", "com/mcdr/ecore/config/config");
-		config = LoadConfig(f);
-	}
+public abstract class Config {
 	
 	protected static File LoadFile(String filePath, String resourcePath) {
 		File file = new File(filePath);

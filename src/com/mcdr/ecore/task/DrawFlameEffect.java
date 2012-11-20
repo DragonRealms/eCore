@@ -2,7 +2,6 @@ package com.mcdr.ecore.task;
 
 import org.bukkit.Effect;
 import org.bukkit.World;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import com.mcdr.ecore.eCore;

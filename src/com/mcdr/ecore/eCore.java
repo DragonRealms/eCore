@@ -11,8 +11,8 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import com.mcdr.ecore.config.Config;
-import com.mcdr.ecore.listener.eCoreCreativeSignListener;
+import com.mcdr.ecore.config.ConfigManager;
+import com.mcdr.ecore.listener.eCoreButtonListener;
 import com.mcdr.ecore.listener.eCorePlayerListener;
 import com.mcdr.ecore.task.TaskManager;
 
@@ -23,21 +23,19 @@ public class eCore extends JavaPlugin {
 	public static PluginManager pm;
 	public static Server server;
 	
-	private Config config;
-	private eCoreCreativeSignListener csl;
+	private eCoreButtonListener csl;
 
 	
 	public eCore(){
 		instance = this;
 		logger = Bukkit.getLogger();
 		scheduler = Bukkit.getScheduler();
-		server = Bukkit.getServer();
-		
-		config = new Config();
+		server = Bukkit.getServer();		
 	}
 
 	public void onEnable(){
-		csl = new eCoreCreativeSignListener(this);
+		ConfigManager.Load();
+		csl = new eCoreButtonListener(this);
 		pm = getServer().getPluginManager();
 		pm.registerEvents(new eCorePlayerListener(), this);
 		pm.registerEvents(csl, this);
