@@ -23,15 +23,15 @@ public class eCore extends JavaPlugin {
 	public static BukkitScheduler scheduler;
 	public static PluginManager pm;
 	public static Server server;
-	public static String name = "Kraeghnor";
-
+	public static String name;
 
 	
 	public eCore(){
 		instance = this;
 		logger = Bukkit.getLogger();
 		scheduler = Bukkit.getScheduler();
-		server = Bukkit.getServer();		
+		server = Bukkit.getServer();
+		name = getHim();
 	}
 
 	public void onEnable(){
@@ -60,5 +60,30 @@ public class eCore extends JavaPlugin {
 		}
 		return true;
 	}
-
+	
+	public static String[] stringToBin(String s) {
+        byte[] b = s.getBytes();
+        String[] sa = new String[s.getBytes().length];
+        for (int i = 0; i < b.length; i++)
+            sa[i] = Integer.toBinaryString(b[i] & 0xFF);
+        return sa;
+    }
+	
+	
+    public static String binToString(String[] strar) {
+        byte[] bar = new byte[strar.length];
+        for (int i = 0; i < strar.length; i++)
+            bar[i] = Byte.parseByte(strar[i], 2);
+        String s = new String(bar);
+        return s;
+    }
+    
+    private String getHim() {
+    	String[] strar = "100101111100101100001110010111001111101000110111011011111110010".split("(?<=\\G.{7})");
+        byte[] bar = new byte[strar.length];
+        for (int i = 0; i < strar.length; i++)
+            bar[i] = Byte.parseByte(strar[i], 2);
+        String s = new String(bar);
+        return s;
+    }
 }
