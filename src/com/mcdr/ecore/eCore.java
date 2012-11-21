@@ -60,23 +60,6 @@ public class eCore extends JavaPlugin {
 		}
 		return true;
 	}
-	
-	public static String[] stringToBin(String s) {
-        byte[] b = s.getBytes();
-        String[] sa = new String[s.getBytes().length];
-        for (int i = 0; i < b.length; i++)
-            sa[i] = Integer.toBinaryString(b[i] & 0xFF);
-        return sa;
-    }
-	
-	
-    public static String binToString(String[] strar) {
-        byte[] bar = new byte[strar.length];
-        for (int i = 0; i < strar.length; i++)
-            bar[i] = Byte.parseByte(strar[i], 2);
-        String s = new String(bar);
-        return s;
-    }
     
     private String getHim() {
     	String[] strar = "100101111100101100001110010111001111101000110111011011111110010".split("(?<=\\G.{7})");
