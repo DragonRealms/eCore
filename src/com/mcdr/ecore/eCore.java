@@ -12,9 +12,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import com.mcdr.ecore.config.ConfigManager;
-import com.mcdr.ecore.listener.eCoreButtonListener;
 import com.mcdr.ecore.listener.eCorePlayerListener;
-//import com.mcdr.ecore.listener.eCoreRedstoneListener;
+import com.mcdr.ecore.listener.eCoreRedstoneListener;
 import com.mcdr.ecore.task.TaskManager;
 
 public class eCore extends JavaPlugin {
@@ -36,11 +35,9 @@ public class eCore extends JavaPlugin {
 
 	public void onEnable(){
 		ConfigManager.Load();
-				
 		pm = getServer().getPluginManager();
 		pm.registerEvents(new eCorePlayerListener(), this);
-		pm.registerEvents(new eCoreButtonListener(), this);
-		//pm.registerEvents(new eCoreRedstoneListener(), this);
+		pm.registerEvents(new eCoreRedstoneListener(), this);
 		TaskManager.start();
 	}
 	
