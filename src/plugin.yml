@@ -1,7 +1,10 @@
 name: eCore
-version: 0.4
+version: 0.5
 main: com.mcdr.ecore.eCore
 commands:
-    kr:
-        usage: /<command>
+    ks:
+        usage: /ks <...args>
+        description:
+    as:
+        usage: /as <...args>
         description:
