@@ -22,13 +22,7 @@ public class eCore extends JavaPlugin {
 	public static BukkitScheduler scheduler;
 	public static PluginManager pm;
 	public static Server server;
-<<<<<<< HEAD
-	public static String name = "Kraeghnor";
-	
-	private eCoreButtonListener csl;
-=======
 	public static String name;
->>>>>>> origin/SignChange
 
 	
 	public eCore(){
