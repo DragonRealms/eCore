@@ -16,7 +16,7 @@ public class eCoreRedstoneListener implements Listener {
 	@EventHandler
 	public void onRedstoneUpdate(BlockRedstoneEvent e){	
 		if(e.getBlock().getWorld().getName().equalsIgnoreCase("Area51")){
-			Location rsLoc = new Location(e.getBlock().getWorld(), -37D, 35D, 36D);
+			Location rsLoc = new Location(e.getBlock().getWorld(), -37D, 36D, 35D);
 			Location uLoc = e.getBlock().getLocation();
 			if(uLoc.getBlockX() == rsLoc.getBlockX() && uLoc.getBlockY() == rsLoc.getBlockY() && uLoc.getBlockZ() == rsLoc.getBlockZ()){
 				ArrayList<Location> locations = new ArrayList<Location>();
