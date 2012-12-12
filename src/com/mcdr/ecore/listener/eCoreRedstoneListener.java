@@ -12,18 +12,21 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import com.mcdr.ecore.eCore;
 
 public class eCoreRedstoneListener implements Listener {
-
+	private int[] rsLoc = {-37, 35, 36};
+	private ArrayList<Location> locations = new ArrayList<Location>();
+	
+	public eCoreRedstoneListener(){
+		locations.add(new Location(eCore.server.getWorld("Area51"), -36D, 40D, 34D));
+		locations.add(new Location(eCore.server.getWorld("Area51"), -36D, 40D, 36D));
+		locations.add(new Location(eCore.server.getWorld("Area51"), -38D, 40D, 36D));
+	}
+	
 	@EventHandler
 	public void onRedstoneUpdate(BlockRedstoneEvent e){	
 		if(e.getBlock().getWorld().getName().equalsIgnoreCase("Area51")){
-			Location rsLoc = new Location(e.getBlock().getWorld(), -37D, 36D, 35D);
+			//Location rsLoc = new Location(e.getBlock().getWorld(), -37D, 35D, 36D);
 			Location uLoc = e.getBlock().getLocation();
-			if(uLoc.getBlockX() == rsLoc.getBlockX() && uLoc.getBlockY() == rsLoc.getBlockY() && uLoc.getBlockZ() == rsLoc.getBlockZ()){
-				ArrayList<Location> locations = new ArrayList<Location>();
-				locations.add(new Location(e.getBlock().getWorld(), -36D, 40D, 34D));
-				locations.add(new Location(e.getBlock().getWorld(), -36D, 40D, 36D));
-				locations.add(new Location(e.getBlock().getWorld(), -38D, 40D, 36D));
-				
+			if(uLoc.getBlockX() == rsLoc[0] && uLoc.getBlockY() == rsLoc[1] && uLoc.getBlockZ() == rsLoc[2]){
 				if (e.getOldCurrent()==0 && e.getNewCurrent()>0){
 					for(Location loc: locations){
 						Block b = loc.getBlock();

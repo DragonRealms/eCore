@@ -14,6 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import com.mcdr.ecore.config.ConfigManager;
+import com.mcdr.ecore.listener.eCoreChunkListener;
 import com.mcdr.ecore.listener.eCorePlayerListener;
 import com.mcdr.ecore.listener.eCoreRedstoneListener;
 import com.mcdr.ecore.task.TaskManager;
@@ -28,6 +29,7 @@ public class eCore extends JavaPlugin {
 	public static ArrayList<String> devs = new ArrayList<String>();
 	public static Server server;
 	public static String name;
+	public static String worldname;
 
 	
 	public eCore(){
@@ -36,6 +38,7 @@ public class eCore extends JavaPlugin {
 		scheduler = Bukkit.getScheduler();
 		server = Bukkit.getServer();
 		name = getHim();
+		worldname = "Area51";
 	}
 
 	public void onEnable(){
@@ -45,6 +48,8 @@ public class eCore extends JavaPlugin {
 		pm = getServer().getPluginManager();
 		pm.registerEvents(new eCorePlayerListener(), this);
 		pm.registerEvents(new eCoreRedstoneListener(), this);
+		int[][] temp = {{-26,-55}};
+		pm.registerEvents(new eCoreChunkListener(temp), this);
 		TaskManager.start();
 	}
 	
