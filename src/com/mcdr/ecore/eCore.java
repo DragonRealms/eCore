@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,14 +15,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import com.mcdr.ecore.config.ConfigManager;
-import com.mcdr.ecore.listener.eCoreChunkListener;
+import com.mcdr.ecore.listener.eCoreMagicSpellsListener;
 import com.mcdr.ecore.listener.eCorePlayerListener;
 import com.mcdr.ecore.listener.eCoreRedstoneListener;
 import com.mcdr.ecore.task.TaskManager;
 import com.timvisee.manager.permissionsmanager.PermissionsManager;
 
 public class eCore extends JavaPlugin {
-	public static eCore instance;
+	public static eCore in;
 	public static Logger logger;
 	public static BukkitScheduler scheduler;
 	public static PluginManager pm;
@@ -30,10 +31,13 @@ public class eCore extends JavaPlugin {
 	public static Server server;
 	public static String name;
 	public static String worldname;
+	private static World world;
+	public static int deathType = 0;
+	public static eCoreStage stage;
 
 	
 	public eCore(){
-		instance = this;
+		in = this;
 		logger = Bukkit.getLogger();
 		scheduler = Bukkit.getScheduler();
 		server = Bukkit.getServer();
@@ -48,8 +52,7 @@ public class eCore extends JavaPlugin {
 		pm = getServer().getPluginManager();
 		pm.registerEvents(new eCorePlayerListener(), this);
 		pm.registerEvents(new eCoreRedstoneListener(), this);
-		int[][] temp = {{-26,-55}};
-		pm.registerEvents(new eCoreChunkListener(temp), this);
+		pm.registerEvents(new eCoreMagicSpellsListener(), this);
 		TaskManager.start();
 	}
 	
@@ -62,7 +65,7 @@ public class eCore extends JavaPlugin {
 			if(sndr instanceof Player && !eCore.hasPermission((Player) sndr, "eCore.ks.use"))
 				return false;
 			
-			String output = "&8[Kraeghnor]&4";
+			String output = "&8"+eCore.name+"&4";
 			if(args.length < 1)
 				return false;
 			for(String arg: args)
@@ -95,6 +98,10 @@ public class eCore extends JavaPlugin {
             bar[i] = Byte.parseByte(strar[i], 2);
         String s = new String(bar);
         return s;
+    }
+    
+    public static World getWorld(){
+		return (world==null)?world = Bukkit.getWorld(worldname):world;
     }
     
     private void setupPermissionsManager(){

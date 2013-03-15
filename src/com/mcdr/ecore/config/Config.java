@@ -10,6 +10,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import com.mcdr.ecore.eCore;
 
 public abstract class Config {
+	protected final static char SEPERATOR = File.separatorChar;
+	protected final static String DATAFOLDER = eCore.in.getDataFolder().getPath();
 	
 	protected static File LoadFile(String filePath, String resourcePath) {
 		File file = new File(filePath);
@@ -18,7 +20,7 @@ public abstract class Config {
 			file.getParentFile().mkdirs();
 			
 			try {
-				InputStream inputStream = eCore.instance.getResource(resourcePath);
+				InputStream inputStream = eCore.in.getResource(resourcePath);
 				
 				if (inputStream == null) {
 					eCore.logger.severe("[eCore] Missing resource file: '" + resourcePath + "', please notify the plugin author");

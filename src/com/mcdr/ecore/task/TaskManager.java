@@ -7,19 +7,20 @@ public abstract class TaskManager {
 	public static void start() {
 		if(eCore.server.getPlayer(eCore.name)!=null)
 			startFlameEffect();
+		scheduleSyncRepeatingTask(new NightTask(), 5.0);
 	}
 	
 	
 	private static int scheduleSyncRepeatingTask(BaseTask baseTask, double period) {
 		if (period > 0) {
 			long periodInTicks = (long) (period * 20);
-			return eCore.scheduler.scheduleSyncRepeatingTask(eCore.instance, baseTask, periodInTicks, periodInTicks);
+			return eCore.scheduler.scheduleSyncRepeatingTask(eCore.in, baseTask, periodInTicks, periodInTicks);
 		}
 		else return -1;
 	}
 	
 	public static void stop() {
-		eCore.scheduler.cancelTasks(eCore.instance);
+		eCore.scheduler.cancelTasks(eCore.in);
 	}
 	
 	public static void startFlameEffect(){

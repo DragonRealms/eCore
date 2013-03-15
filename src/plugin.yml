@@ -2,6 +2,9 @@ name: eCore
 version: 0.5
 main: com.mcdr.ecore.eCore
 commands:
+    ecore:
+        usage: /ecore reload
+        description:
     ks:
         usage: /ks <...args>
         description:
