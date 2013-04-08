@@ -13,6 +13,17 @@ public abstract class Config {
 	protected final static char SEPERATOR = File.separatorChar;
 	protected final static String DATAFOLDER = eCore.in.getDataFolder().getPath();
 	
+	protected static File LoadFile(String filePath) {
+		File file = new File(filePath);
+		
+		if (!file.exists()) {
+			file.getParentFile().mkdirs();
+			file.mkdir();
+		}
+		
+		return file;
+	}
+	
 	protected static File LoadFile(String filePath, String resourcePath) {
 		File file = new File(filePath);
 		

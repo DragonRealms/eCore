@@ -15,7 +15,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import com.mcdr.ecore.config.ConfigManager;
-import com.mcdr.ecore.listener.eCoreMagicSpellsListener;
 import com.mcdr.ecore.listener.eCorePlayerListener;
 import com.mcdr.ecore.listener.eCoreRedstoneListener;
 import com.mcdr.ecore.task.TaskManager;
@@ -34,6 +33,7 @@ public class eCore extends JavaPlugin {
 	private static World world;
 	public static int deathType = 0;
 	public static eCoreStage stage;
+	public static boolean corruptionEnabled = false;
 
 	
 	public eCore(){
@@ -48,11 +48,15 @@ public class eCore extends JavaPlugin {
 	public void onEnable(){
 		setupPermissionsManager();
 		
+		corruptionEnabled = server.getPluginManager().isPluginEnabled("Corruption");
+		if(corruptionEnabled)
+			logger.info("[eCore] Hooked into Corruption!");
+		
+		
 		ConfigManager.Load();
 		pm = getServer().getPluginManager();
 		pm.registerEvents(new eCorePlayerListener(), this);
 		pm.registerEvents(new eCoreRedstoneListener(), this);
-		pm.registerEvents(new eCoreMagicSpellsListener(), this);
 		TaskManager.start();
 	}
 	

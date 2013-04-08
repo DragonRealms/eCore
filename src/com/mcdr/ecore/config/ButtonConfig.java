@@ -11,7 +11,7 @@ public class ButtonConfig extends Config{
 	}
 	
 	public static void load(){
-		File f = LoadFile(DATAFOLDER + SEPERATOR + "buttonconfig.yml", "com/mcdr/ecore/config/buttonconfig");
+		File f = LoadFile(DATAFOLDER + SEPERATOR + "buttonconfig.yml", "com/mcdr/ecore/config/buttonconfig.yml");
 				
 		if (f == null)
 			return;
