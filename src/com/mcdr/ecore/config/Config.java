@@ -2,30 +2,39 @@ package com.mcdr.ecore.config;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.mcdr.ecore.eCore;
+import com.mcdr.ecore.eLogger;
 
 public abstract class Config {
 	protected final static char SEPERATOR = File.separatorChar;
 	protected final static String DATAFOLDER = eCore.in.getDataFolder().getPath();
+	protected final static String DATAEXTENSION = ".dat";
+	protected final static String CONFIGEXTENSION = ".yml";
 	
-	protected static File LoadFile(String filePath) {
-		File file = new File(filePath);
+	//Loading Files
+	
+	protected static File loadFile(String fileName, boolean inPlayersFolder) {
+		File file = getFile(fileName, inPlayersFolder);
 		
 		if (!file.exists()) {
 			file.getParentFile().mkdirs();
-			file.mkdir();
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		
 		return file;
 	}
 	
-	protected static File LoadFile(String filePath, String resourcePath) {
-		File file = new File(filePath);
+	protected static File loadFile(String fileName, boolean inPlayersFolder, String resourcePath) {
+		File file = getFile(fileName, inPlayersFolder);
 		
 		if (!file.exists()) {
 			file.getParentFile().mkdirs();
@@ -34,12 +43,12 @@ public abstract class Config {
 				InputStream inputStream = eCore.in.getResource(resourcePath);
 				
 				if (inputStream == null) {
-					eCore.logger.severe("[eCore] Missing resource file: '" + resourcePath + "', please notify the plugin author");
+					eLogger.s("Missing resource file: '" + resourcePath + "', please notify the plugin author");
 					return null;
 				}
 				else {
-					eCore.logger.info("[eCore] Creating default config file: " + file.getName());
-					StreamToFile(inputStream, file);
+					eLogger.i("Creating default config file: " + file.getName());
+					streamToFile(inputStream, file);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -50,8 +59,26 @@ public abstract class Config {
 		return file;
 	}
 	
-	protected static YamlConfiguration LoadConfig(File file) {
+	protected static YamlConfiguration loadConfig(String fileName) {
+		return loadConfig(fileName, null, false);
+	}
+	
+	protected static YamlConfiguration loadConfig(String fileName, boolean inPlayersFolder) {
+		return loadConfig(fileName, null, inPlayersFolder);
+	}
+	
+	protected static YamlConfiguration loadConfig(String fileName, String resourcePath) {
+		return loadConfig(fileName, resourcePath, false);
+	}
+	
+	protected static YamlConfiguration loadConfig(String fileName, String resourcePath, boolean inPlayersFolder) {
+		File file = resourcePath==null?loadFile(fileName, inPlayersFolder):loadFile(fileName, inPlayersFolder, resourcePath);
 		YamlConfiguration yamlConfig = new YamlConfiguration();
+		
+		if (file == null){
+			eLogger.s("Unable to load or create the " + fileName + DATAEXTENSION + " file. Is something wrong with your filesystem?");
+			return null;
+		}
 		
 		try {
 			yamlConfig.load(file);
@@ -62,13 +89,38 @@ public abstract class Config {
 		return yamlConfig;
 	}
 	
-	public static void StreamToFile(InputStream resource, File file) throws Exception {
-		OutputStream outputStream = new FileOutputStream(file);
-		
-		Copy(resource, outputStream);
+	//Saving Files
+	
+	protected static void saveConfig(YamlConfiguration yamlConfig, String fileName){
+		saveConfig(yamlConfig, fileName, false);
 	}
 	
-	private static void Copy(InputStream inputStream, OutputStream outputStream) throws Exception {
+	protected static void saveConfig(YamlConfiguration yamlConfig, String fileName, boolean inPlayersFolder){
+		try{
+			yamlConfig.save(getFilePath(inPlayersFolder)+fileName);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	//Other methods
+	
+	public static String getFilePath(boolean inPlayersFolder){
+		return DATAFOLDER + SEPERATOR + (inPlayersFolder?"Players" + SEPERATOR:"");
+	}
+	
+	public static File getFile(String fileName, boolean inPlayersFolder){
+		return new File(getFilePath(inPlayersFolder), fileName);
+	}
+	
+	public static void streamToFile(InputStream resource, File file) throws Exception {
+		OutputStream outputStream = new FileOutputStream(file);
+		
+		copy(resource, outputStream);
+	}
+	
+	private static void copy(InputStream inputStream, OutputStream outputStream) throws Exception {
 		int read = 0;
 		byte[] bytes = new byte[1024];
 		
@@ -78,4 +130,6 @@ public abstract class Config {
 		inputStream.close();
 		outputStream.close();
 	}
+	
+	
 }

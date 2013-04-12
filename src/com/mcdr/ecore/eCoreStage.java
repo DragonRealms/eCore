@@ -33,41 +33,40 @@ public enum eCoreStage {
 	DEJAVU(-91.0, 39.0, 39.5, 0f, 24),
 	NUKETHERABBITHOLE(-374.5, 65.0, 56.5, 90f, 25),
 	DOWNTHEDRAIN(-507.0, 54.0, 60.5, 90f, 26),
-	FINISHED(999);
+	FINISHED(27);
 	
 	
 	private final double x, y, z;
-	private final int stageNo;
+	private final int checkpointID;
 	private final float rot;
 	private Location respawnLocation;
 	private static final Map<String, eCoreStage> NAME_MAP = new HashMap<String, eCoreStage>();
 	
-	eCoreStage(int stageNo){
-		this(0.0, 0.0, 0.0, 0f, stageNo);
+	eCoreStage(int checkpointID){
+		this(0.0, 0.0, 0.0, 0f, checkpointID);
 	}
 	
-	eCoreStage(double x, double y, double z, float rot, int stageNo){
-		this.stageNo = stageNo;
+	eCoreStage(double x, double y, double z, float rot, int checkpointID){
+		this.checkpointID = checkpointID;
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.rot = rot;
-		setRespawn();
 	}
 	
 	public void setRespawn(){
-		if(stageNo>0 && stageNo<999)
+		if(checkpointID>0 && checkpointID<values().length-1)
 			respawnLocation = eCore.getWorld()==null?null:new Location(eCore.getWorld(), x, y, z, rot, 0f);
 		else
-			respawnLocation = null;
+			respawnLocation = eCore.getWorld()==null?null:eCore.getWorld().getSpawnLocation();
 	}
 	
 	public Location getRespawn(){
 		return respawnLocation;
 	}
 	
-	public int getStageNo(){
-		return stageNo;
+	public int getID(){
+		return checkpointID;
 	}
 	
 	static{
@@ -79,6 +78,36 @@ public enum eCoreStage {
 		if(eCoreStage==null)
 			return null;
 		return NAME_MAP.get(eCoreStage.toLowerCase());
+	}
+	
+	public static eCoreStage fromID(int id){
+		if(id<0||id>=values().length)
+			return null;
+		return values()[id];
+	}
+	
+	
+	public boolean isLast(){
+		return getID()+1==values().length;
+	}
+	
+	public boolean isFirst(){
+		return getID()==0;
+	}
+	
+	public eCoreStage next() {
+		return next(getID());		
+	}
+	
+	public static eCoreStage next(int curID) {
+		int ln = values().length;
+		if(curID >= 0 && curID+1 < ln){
+			return fromID(curID+1);
+		} else if(curID<0){
+			return fromID(0);
+		} else {
+			return fromID(ln-1);
+		}
 	}
 	
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -14,9 +13,14 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import com.mcdr.ecore.command.AsCommand;
+import com.mcdr.ecore.command.BaseCommand;
+import com.mcdr.ecore.command.KsCommand;
+import com.mcdr.ecore.command.MainCommand;
 import com.mcdr.ecore.config.ConfigManager;
 import com.mcdr.ecore.listener.eCorePlayerListener;
 import com.mcdr.ecore.listener.eCoreRedstoneListener;
+import com.mcdr.ecore.player.PlayerManager;
 import com.mcdr.ecore.task.TaskManager;
 import com.timvisee.manager.permissionsmanager.PermissionsManager;
 
@@ -29,7 +33,7 @@ public class eCore extends JavaPlugin {
 	public static ArrayList<String> devs = new ArrayList<String>();
 	public static Server server;
 	public static String name;
-	public static String worldname;
+	public static String worldName;
 	private static World world;
 	public static int deathType = 0;
 	public static eCoreStage stage;
@@ -42,7 +46,7 @@ public class eCore extends JavaPlugin {
 		scheduler = Bukkit.getScheduler();
 		server = Bukkit.getServer();
 		name = getHim();
-		worldname = "Area51";
+		worldName = "Area51";
 	}
 
 	public void onEnable(){
@@ -53,46 +57,46 @@ public class eCore extends JavaPlugin {
 			logger.info("[eCore] Hooked into Corruption!");
 		
 		
-		ConfigManager.Load();
+		ConfigManager.load();
 		pm = getServer().getPluginManager();
 		pm.registerEvents(new eCorePlayerListener(), this);
 		pm.registerEvents(new eCoreRedstoneListener(), this);
+		
+		PlayerManager.initializeArrays();
+		
 		TaskManager.start();
 	}
 	
 	public void onDisable(){
-		
+		TaskManager.stop();
+		PlayerManager.saveAll();
+		GlobalDataManager.save();
 	}
 	
 	public boolean onCommand(CommandSender sndr, Command cmd, String lbl, String[] args){
+		BaseCommand.sender = sndr;
+		BaseCommand.args = args;
+		BaseCommand.label = lbl;
 		if(cmd.getName().equalsIgnoreCase("ks")){
-			if(sndr instanceof Player && !eCore.hasPermission((Player) sndr, "eCore.ks.use"))
-				return false;
-			
-			String output = "&8"+eCore.name+"&4";
-			if(args.length < 1)
-				return false;
-			for(String arg: args)
-				output += " "+arg;
-			output = output.replaceAll("&", ""+ChatColor.COLOR_CHAR);
-			eCore.server.broadcastMessage(output);
+			KsCommand.process();
 		} else if (cmd.getName().equalsIgnoreCase("as")){
-			if(sndr instanceof Player && !eCore.hasPermission((Player) sndr, "eCore.as.use"))
-				return false;
-			
-			String output = "&4";
-			if(args.length < 1)
-				return false;
-			for(String arg: args)
-				output += " "+arg;
-			output = output.replaceAll("&", ""+ChatColor.COLOR_CHAR);
-			eCore.server.broadcastMessage(output.replaceFirst(" ", ""));
+			AsCommand.process();
+		} else if (cmd.getName().equalsIgnoreCase("ecore")){
+			MainCommand.process();
 		}
-		return true;
+		return BaseCommand.processed;
 	}
 	
 	public static boolean hasPermission(Player p, String permsNode){
-		return p.isOp() || eCore.permsM.hasPermission(p, permsNode) || eCore.devs.contains(p.getName().toLowerCase());
+		return eCore.permsM.hasPermission(p, permsNode) || eCore.devs.contains(p.getName().toLowerCase());
+	}
+	
+	public static boolean hasPermission(CommandSender sender, String permission) {
+		if(sender instanceof Player){
+			return hasPermission((Player) sender, permission);
+		} else {
+			return true;
+		}
 	}
     
     private String getHim() {
@@ -105,7 +109,7 @@ public class eCore extends JavaPlugin {
     }
     
     public static World getWorld(){
-		return (world==null)?world = Bukkit.getWorld(worldname):world;
+		return (world==null)?world = Bukkit.getWorld(worldName):world;
     }
     
     private void setupPermissionsManager(){

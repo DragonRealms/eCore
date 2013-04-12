@@ -11,7 +11,7 @@ public class NightTask extends BaseTask{
 	@Override
 	public void run() {
 		if(world==null)
-			if((world = Bukkit.getWorld(eCore.worldname))==null)
+			if((world = Bukkit.getWorld(eCore.worldName))==null)
 				return;
 		world.setTime(18000L);
 		

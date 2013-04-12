@@ -3,12 +3,47 @@ version: 0.5
 main: com.mcdr.ecore.eCore
 softdepend: [Corruption]
 commands:
-    ecore:
-        usage: /ecore reload
-        description:
-    ks:
-        usage: /ks <...args>
-        description:
-    as:
-        usage: /as <...args>
-        description:
+  ecore:
+    usage: /ecore <args...>
+    description:
+  ks:
+    usage: /ks <...args>
+    description:
+  as:
+    usage: /as <...args>
+    description:
+permissions:
+  eCore:
+    default: false
+  eCore.*:
+    children:
+      eCore: true
+      eCore.as: true
+      eCore.ks: true
+      eCore.invBypass.*: true
+    default: op
+  eCore.as:
+    default: false
+  eCore.ks:
+    default: false
+  eCore.invBypass.*:
+    children:
+      eCore.invBypass.global.toggle: true
+      eCore.invBypass.local.toggle: true
+      eCore.invBypass.admin: true
+    default: false
+  eCore.invBypass.admin:
+    default: false
+  eCore.invBypass.global.toggle:
+    children:
+      eCore.invBypass.global.use: true
+    default: false
+  eCore.invBypass.global.use:
+    default: false
+  eCore.invBypass.local.toggle:
+    children:
+      eCore.invBypass.local.use: true
+    default: false
+  eCore.invBypass.local.use:
+    default: false
+      

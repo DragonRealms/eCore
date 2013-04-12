@@ -1,6 +1,7 @@
 package com.mcdr.ecore.task;
 
 import com.mcdr.ecore.eCore;
+import com.mcdr.ecore.eLogger;
 
 public abstract class TaskManager {
 	public static Integer drawFlameTaskId = null;
@@ -8,6 +9,8 @@ public abstract class TaskManager {
 		if(eCore.server.getPlayer(eCore.name)!=null)
 			startFlameEffect();
 		scheduleSyncRepeatingTask(new NightTask(), 5.0);
+		scheduleSyncRepeatingTask(new DataSaveTask(), 60.0);
+		eLogger.d("Started all tasks");
 	}
 	
 	
@@ -21,11 +24,13 @@ public abstract class TaskManager {
 	
 	public static void stop() {
 		eCore.scheduler.cancelTasks(eCore.in);
+		eLogger.d("Stopped all tasks");
 	}
 	
 	public static void startFlameEffect(){
 		if(drawFlameTaskId == null || drawFlameTaskId == -1){
 			drawFlameTaskId = scheduleSyncRepeatingTask(new DrawFlameEffect(), 0.8);
+			eLogger.d("Started FlameEffectTask");
 		}
 	}
 	
@@ -33,6 +38,7 @@ public abstract class TaskManager {
 		if(drawFlameTaskId != null){
 			eCore.scheduler.cancelTask(drawFlameTaskId);
 			drawFlameTaskId = null;
+			eLogger.d("Stopped FlameEffectTask");
 		}
 	}
 	
