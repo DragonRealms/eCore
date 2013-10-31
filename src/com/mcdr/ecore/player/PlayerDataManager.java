@@ -9,20 +9,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import com.mcdr.ecore.eLogger;
 import com.mcdr.ecore.config.Config;
+import com.mcdr.ecore.util.legacy.GameModes;
 
 public abstract class PlayerDataManager extends Config {
 	
 	public static OfflinePlayer[] getPlayersFromFiles(){
 		File playersFolder = new File(DATAFOLDER+SEPERATOR+"Players");
 		String[] playerFileNames = playersFolder.list(new FilenameFilter(){public boolean accept(File directory, String fileName){return fileName.endsWith(".dat");}});
-		int amount = playerFileNames.length;
+		int amount = playerFileNames==null?0:playerFileNames.length;
 		OfflinePlayer[] players = new OfflinePlayer[amount];
 		for(int i = 0; i<amount; i++){
 			players[i] = Bukkit.getOfflinePlayer(playerFileNames[i].replace(".dat", ""));
@@ -31,6 +33,7 @@ public abstract class PlayerDataManager extends Config {
 	}
 	
 	public static eCorePlayer loadPlayerData(OfflinePlayer player){
+		eLogger.d("Loading "+player.getName()+"'s PlayerData");
 		String playerName = player.getName().toLowerCase();
 		YamlConfiguration yamlConfig = loadConfig(playerName + DATAEXTENSION, true);
 		eCoreInventory eCoreInv = loadInventory(player, yamlConfig, true), normalInv = loadInventory(player, yamlConfig, false);
@@ -47,28 +50,21 @@ public abstract class PlayerDataManager extends Config {
 		boolean eventInv = yamlConfig.getBoolean("EventInvEquipped", false);
 		boolean invBypass = yamlConfig.getBoolean("invBypass", false);
 		int score = yamlConfig.getInt("Score", 0);
+		GameMode nonEventMode = GameModes.getById(yamlConfig.getInt("NonEventGameMode", 0));
 		
 		eCorePlayer ePlayer = new eCorePlayer(player, eCoreInv, normalInv, eventInv, score, invBypass);
 		
-		Location spawnBak = null;
-		if(yamlConfig.isSet("TempSpawnBackup")){
-			spawnBak = new Location(
-					Bukkit.getWorld(yamlConfig.getString("TempSpawnBackup.World")),
-					yamlConfig.getDouble("TempSpawnBackup.x"),
-					yamlConfig.getDouble("TempSpawnBackup.y"),
-					yamlConfig.getDouble("TempSpawnBackup.z")
-					);
-			if(spawnBak!=null)
-				ePlayer.setTempSpawnBackup(spawnBak);
-		}
+		ePlayer.setDiedInEventWorld(yamlConfig.getBoolean("DiedInEventWorld", false));
+		ePlayer.setNonEventMode(nonEventMode);
 		
-		eLogger.d("Loaded "+player.getName()+"'s data"+(spawnBak!=null?" including a respawn backup":""));
+		eLogger.d("Loaded "+player.getName()+"'s data");
 		
 		saveConfig(yamlConfig, playerName + DATAEXTENSION, true);
 		return ePlayer;
 	}
 	
 	public static void savePlayerData(eCorePlayer ePlayer){
+		eLogger.d("Saving "+ePlayer.getName()+"'s PlayerData");
 		String playerName = ePlayer.getName().toLowerCase();
 		YamlConfiguration yamlConfig = loadConfig(playerName + DATAEXTENSION, true);
 		
@@ -76,14 +72,8 @@ public abstract class PlayerDataManager extends Config {
 		yamlConfig.set("EventInvEquipped", ePlayer.usesEventInv());
 		yamlConfig.set("invBypass", ePlayer.hasLocalInvBypass());
 		yamlConfig.set("Score", ePlayer.getScore());
-		if(ePlayer.hasTempSpawnBackup()){
-			Location spawnBak = ePlayer.getTempSpawnBackup();
-			yamlConfig.set("TempSpawnBackup.World", spawnBak.getWorld().getName());
-			yamlConfig.set("TempSpawnBackup.x", spawnBak.getX());
-			yamlConfig.set("TempSpawnBackup.y", spawnBak.getY());
-			yamlConfig.set("TempSpawnBackup.z", spawnBak.getZ());
-		} else
-			yamlConfig.set("TempSpawnBackup", null);
+		yamlConfig.set("DiedInEventWorld", ePlayer.hasDiedInEventWorld()?true:null);
+		yamlConfig.set("NonEventGameMode", GameModes.getIdByName(ePlayer.getNonEventMode().toString()));
 		
 		saveInventory(yamlConfig, ePlayer, true);
 		saveInventory(yamlConfig, ePlayer, false);
@@ -107,7 +97,7 @@ public abstract class PlayerDataManager extends Config {
 				amount = yamlConfig.getInt(tempPath+"amount");
 				tempItems.clear();
 				for(int i = 0; i<amount; i++){
-					tempItems.add(yamlConfig.getItemStack(tempPath+"slot"+i, new ItemStack(0)));
+					tempItems.add(yamlConfig.getItemStack(tempPath+"slot"+i, new ItemStack(Material.AIR)));
 				}
 				serialized.put(temp, tempItems.toArray(new ItemStack[tempItems.size()]));
 			}

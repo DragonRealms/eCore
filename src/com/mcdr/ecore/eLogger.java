@@ -5,8 +5,12 @@ import java.util.logging.Level;
 public abstract class eLogger {
 	private static int level = Level.INFO.intValue();
 	
-	public static Level getLogLevel() {
+	public static Level parseLogLevel() {
 		return Level.parse(level+"");
+	}
+	
+	public static int getLogLevel(){
+		return level;
 	}
 	
 	public static void setLogLevel(int lvl){

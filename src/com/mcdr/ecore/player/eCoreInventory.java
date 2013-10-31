@@ -47,12 +47,14 @@ public class eCoreInventory{
 	
 	public void update(){
 		if(!owner.isOnline()){
-			eLogger.d("Tried to update"+owner.getName()+"'s inventory, but "+owner.getName()+" is offline");
+			eLogger.d("Tried to update "+owner.getName()+"'s inventory, but "+owner.getName()+" is offline");
 			return;
 		}
 		Player owner = getOwner();
-		this.contents = owner.getInventory().getContents();
-		this.armorContents = owner.getInventory().getArmorContents();
+		if(!this.contents.equals(owner.getInventory().getContents()))
+			this.contents = owner.getInventory().getContents();
+		if(!this.armorContents.equals(owner.getInventory().getArmorContents()))
+			this.armorContents = owner.getInventory().getArmorContents();
 		eLogger.d("Updated "+owner.getName()+"'s inventory");
 	}
 	

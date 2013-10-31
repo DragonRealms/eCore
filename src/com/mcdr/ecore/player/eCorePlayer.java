@@ -1,5 +1,6 @@
 package com.mcdr.ecore.player;
 
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -9,13 +10,15 @@ import org.bukkit.inventory.PlayerInventory;
 
 import com.mcdr.ecore.GlobalDataManager;
 import com.mcdr.ecore.eCore;
+import com.mcdr.ecore.eCoreStage;
 
 public class eCorePlayer {
 	private OfflinePlayer player;
 	private eCoreInventory eCoreInv, normalInv;
 	private boolean eventInv = false, saveNeeded = false, invBypass = false;
 	private int score;
-	private Location tempSpawnBackup = null;
+	private boolean diedInEventWorld = false;
+	private GameMode nonEventMode = GameMode.SURVIVAL;
 
 	public eCorePlayer(Player player){
 		this(player, eCoreInventory.createNewInventory(player), new eCoreInventory(player), false, 0, false);
@@ -49,12 +52,15 @@ public class eCorePlayer {
 						normalInv.update();
 						setInv(eCoreInv);
 						eventInv = true;
+						nonEventMode = getPlayer().getGameMode();
+						getPlayer().setGameMode(GameMode.ADVENTURE);
 					}
 				} else {
 					eCoreInv.update();
 					if(hasInvBypass()){
 						setInv(normalInv);
 						eventInv = false;
+						getPlayer().setGameMode(nonEventMode);
 					}
 				}
 			} else {
@@ -62,6 +68,7 @@ public class eCorePlayer {
 					eCoreInv.update();
 					setInv(normalInv);
 					eventInv = false;
+					getPlayer().setGameMode(nonEventMode);
 				} else {
 					normalInv.update();
 				}
@@ -141,31 +148,37 @@ public class eCorePlayer {
 	}
 
 	public void onDeathInEventWorld(PlayerDeathEvent e) {
-		e.setKeepLevel(true);
 		e.setDroppedExp(0);
+		e.setKeepLevel(true);
+		
 		e.getDrops().clear();
-		//updateCurInv();
 		GlobalDataManager.state.setRespawn();
-		tempSpawnBackup = e.getEntity().getBedSpawnLocation();
-		e.getEntity().setBedSpawnLocation(GlobalDataManager.state.getRespawn(), true);
+		diedInEventWorld = true;
 	}
 	
 	public void onRespawn(PlayerRespawnEvent e){
-		Player p = e.getPlayer();
-		p.setBedSpawnLocation(tempSpawnBackup, true);
-		tempSpawnBackup = null;
+		GlobalDataManager.state.setRespawn();
+		Location l = GlobalDataManager.state.getRespawn();
+		e.setRespawnLocation(l);
+		if(GlobalDataManager.state.equals(eCoreStage.TELEPORTER_BEFORE)||GlobalDataManager.state.equals(eCoreStage.TELEPORTER_AFTER))
+			l.getWorld().strikeLightningEffect(l);
+		diedInEventWorld = false;
 		setInv(getInventory(this.eventInv));
 	}
 
-	public boolean hasTempSpawnBackup() {
-		return tempSpawnBackup!=null;
+	public boolean hasDiedInEventWorld() {
+		return diedInEventWorld;
 	}
 	
-	public Location getTempSpawnBackup() {
-		return tempSpawnBackup;
+	public void setDiedInEventWorld(boolean diedInEventWorld){
+		this.diedInEventWorld = diedInEventWorld;
 	}
-	
-	public void setTempSpawnBackup(Location tempSpawnBackup){
-		this.tempSpawnBackup = tempSpawnBackup;
+
+	public GameMode getNonEventMode() {
+		return nonEventMode;
+	}
+
+	public void setNonEventMode(GameMode nonEventMode) {
+		this.nonEventMode = nonEventMode;
 	}
 }

@@ -29,7 +29,7 @@ public abstract class TaskManager {
 	
 	public static void startFlameEffect(){
 		if(drawFlameTaskId == null || drawFlameTaskId == -1){
-			drawFlameTaskId = scheduleSyncRepeatingTask(new DrawFlameEffect(), 0.8);
+			drawFlameTaskId = scheduleSyncRepeatingTask(new DrawFlameEffect(), 0.5);
 			eLogger.d("Started FlameEffectTask");
 		}
 	}

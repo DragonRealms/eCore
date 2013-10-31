@@ -1,17 +1,23 @@
 package com.mcdr.ecore.listener;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Effect;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -19,6 +25,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -26,9 +33,11 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+
+import com.mcdr.ecore.GlobalDataManager;
 import com.mcdr.ecore.eCore;
-import com.mcdr.ecore.event.eCoreEventManager;
-import com.mcdr.ecore.event.eCoreEventManager.EventType;
+import com.mcdr.ecore.eLogger;
 import com.mcdr.ecore.player.PlayerManager;
 import com.mcdr.ecore.player.eCorePlayer;
 import com.mcdr.ecore.task.TaskManager;
@@ -40,9 +49,16 @@ public class eCorePlayerListener implements Listener {
 		Player player = e.getPlayer();
 		if (player.getName().equalsIgnoreCase(eCore.name)){
 			TaskManager.startFlameEffect();
+			player.setMaxHealth(80);
+			player.setHealth(player.getMaxHealth());
 			return;
 		}
-		PlayerManager.addPlayer(player);
+		eCorePlayer ePlayer = PlayerManager.addPlayer(player);
+		if(ePlayer.isInEventWorld()&&!ePlayer.hasInvBypass()){
+			ePlayer.getPlayer().setGameMode(GameMode.ADVENTURE);
+			player.sendMessage(ChatColor.DARK_BLUE + "[eCore] " + ChatColor.WHITE + "Welcome back!\nYou'll be teleported to the current checkpoint.");
+			player.teleport(GlobalDataManager.state.getRespawn());
+		}
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -60,6 +76,8 @@ public class eCorePlayerListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onTeleport(PlayerTeleportEvent e){
+		if(e.getCause()==TeleportCause.UNKNOWN)
+			return;
 		Player player = e.getPlayer();
 		if (player.getName().equalsIgnoreCase(eCore.name)){
 			World world = player.getWorld();
@@ -67,6 +85,8 @@ public class eCorePlayerListener implements Listener {
 			for(int i = 0;i<100;i++)
 				for(double j = 0.0; j <= 2.0; j+=0.25)
 					world.playEffect(loc.clone().add(0.0, j, 0.0),Effect.SMOKE, i, 16);
+			world.playSound(e.getFrom(), Sound.ENDERMAN_TELEPORT, 1f, 1f);
+			//world.playSound(e.getTo(), Sound.ENDERMAN_TELEPORT, 1f, 0f);
 		}
 	}
 	
@@ -104,27 +124,46 @@ public class eCorePlayerListener implements Listener {
 		if (e.getDamage() <= 0)
 			return;
 		Entity entity = e.getEntity();
-		if(entity instanceof Player && ((Player) entity).getName().equalsIgnoreCase(eCore.name)){
+		if(entity instanceof Player){
 			Player player = (Player) entity;
-			if (e instanceof EntityDamageByEntityEvent) {
-				Entity damager = ((EntityDamageByEntityEvent) e).getDamager();
-				if (damager instanceof Projectile && !(((Projectile) damager).getShooter() instanceof Player))
-					e.setCancelled(true);
-				else if(!(damager instanceof Player))
-					e.setCancelled(true);
-			}
-			
-			if(player.getHealth() - e.getDamage() <= 0){
-				switch(eCore.deathType){
-					default:
+			if(((Player) entity).getName().equalsIgnoreCase(eCore.name)){
+				Entity damager = null;
+				if (e instanceof EntityDamageByEntityEvent) {
+					damager = ((EntityDamageByEntityEvent) e).getDamager();
+					if (damager instanceof Projectile && !(((Projectile) damager).getShooter() instanceof Player)){
+						e.setCancelled(true);
+					} else if(damager instanceof Monster||damager instanceof Wolf)
+						e.setCancelled(true);
+				}
+				if(e.isCancelled())
+					return;
+				
+				switch(GlobalDataManager.state.getID()){
 					case 0:
+					case 27:
+						e.setDamage(0);
 						player.setHealth(player.getMaxHealth());
 						break;
-					case 1:
-						eCoreEventManager.runEvent(EventType.FIRSTRETREAT);
+					case 14:
+					case 26:
+						if((e.getDamage()/4)>=player.getHealth()){
+							e.setDamage(player.getHealth()-2);
+							GlobalDataManager.advanceCheckpoint();
+						} else {
+							e.setDamage(((e.getDamage()/4)>0)?e.getDamage()/4:0.25);
+						}
 						break;
-					case 2:
-						eCoreEventManager.runEvent(EventType.FINALRETREAT);
+					default:
+						if(damager!=null && !e.getCause().equals(DamageCause.THORNS)){
+							if(damager instanceof Player){
+								((Player) damager).sendMessage(ChatColor.DARK_RED+"You failed to penetrate "+ChatColor.DARK_GRAY+"Kraeghnor's"+ChatColor.DARK_RED+" aura.");
+								eLogger.d(((Player) damager).getName() + " | " + e.getCause() + " | " + player.getName());
+							} else if(damager instanceof Projectile && (((Projectile) damager).getShooter() instanceof Player)){
+								((Player)((Projectile) damager).getShooter()).sendMessage(ChatColor.DARK_RED+"You failed to penetrate "+ChatColor.DARK_GRAY+"Kraeghnor's"+ChatColor.DARK_RED+" aura.");
+								((Projectile) damager).setBounce(false);
+							}
+						}
+						e.setCancelled(true);
 						break;
 				}
 			}
@@ -147,7 +186,7 @@ public class eCorePlayerListener implements Listener {
 		if(p.getName().equalsIgnoreCase(eCore.name))
 			return;
 		eCorePlayer ePlayer = PlayerManager.getPlayer(p);
-		if(ePlayer.hasTempSpawnBackup())
+		if(ePlayer.hasDiedInEventWorld())
 			ePlayer.onRespawn(e);
 	}
 	
@@ -176,8 +215,19 @@ public class eCorePlayerListener implements Listener {
 		}
 	}
 	
-	private void updateCurInv(Player p){
+	@EventHandler
+	public void onGameModeChange(PlayerGameModeChangeEvent e){
+		Player p = e.getPlayer();
+		
 		if(p.getName().equalsIgnoreCase(eCore.name))
+			return;
+		eCorePlayer ePlayer = PlayerManager.getPlayer(p);
+		if(!ePlayer.isInEventWorld())
+			ePlayer.setNonEventMode(p.getGameMode());
+	}
+	
+	private void updateCurInv(Player p){
+		if(p.getName().equalsIgnoreCase(eCore.name) || p.getHealth() <= 0)
 			return;
 		PlayerManager.getPlayer(p).updateCurInv();
 	}

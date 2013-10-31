@@ -11,7 +11,7 @@ public class DrawFlameEffect extends BaseTask {
 	@Override
 	public void run() {
 		try{
-			Player player = eCore.server.getPlayer("Kraeghnor");
+			Player player = eCore.server.getPlayer(eCore.name);
 			World world = player.getWorld();
 			world.playEffect(player.getLocation(), Effect.MOBSPAWNER_FLAMES, 0);
 		} catch(NullPointerException e){}

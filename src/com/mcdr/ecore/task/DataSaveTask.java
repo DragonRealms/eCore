@@ -8,9 +8,10 @@ public class DataSaveTask extends BaseTask {
 
 	@Override
 	public void run() {
+		eLogger.d("[----Autosaving  playerData----]");
 		PlayerManager.saveAll();
 		GlobalDataManager.save();
-		eLogger.d("Autosaving playerData...");
+		eLogger.d("[----Done saving playerData----]");
 	}
 
 }

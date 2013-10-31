@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import com.mcdr.ecore.eCore;
 import com.mcdr.ecore.eLogger;
 
 public abstract class PlayerManager {
@@ -25,6 +26,9 @@ public abstract class PlayerManager {
 	}
 
 	public static eCorePlayer addPlayer(Player player) {
+		if(player.getName().equalsIgnoreCase(eCore.name))
+			return null;
+		
 		for (eCorePlayer ePlayer : offlinePlayers) {
 			if (ePlayer.getName().equals(player.getName())) {
 				ePlayer.setPlayer(player);
@@ -44,6 +48,9 @@ public abstract class PlayerManager {
 	}
 	
 	public static eCorePlayer addPlayer(OfflinePlayer player){
+		if(player.getName().equalsIgnoreCase(eCore.name))
+			return null;
+		
 		eCorePlayer ePlayer = PlayerDataManager.loadPlayerData(player);
 		offlinePlayers.add(ePlayer);
 		eLogger.d("Added "+player.getName()+" to offlinePlayers");

